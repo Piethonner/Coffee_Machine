@@ -1,0 +1,62 @@
+from Coffee_types import MENU, resources
+from collections import Counter
+
+Machine = True
+stonks = 0
+
+
+# 0.01, 0.05, 0.10, 0.25
+def cash():
+    """Returns value of inserted coins."""
+    print("Please, insert coins.")
+    paid = int(input("How many pennies you're inserting?: ")) * 0.01
+    paid += int(input("How many nickles you're inserting?: ")) * 0.05
+    paid += int(input("How many dimes you're inserting?: ")) * 0.10
+    paid += int(input("How many quarters you're inserting?: ")) * 0.25
+    return paid
+
+
+def enough_resources(needed_ingredients):
+    """Returns True if coffee can be created; False if resources are missing."""
+    for item in needed_ingredients:
+        if needed_ingredients[item] > resources[item]:
+            print(f"Sorry, there is not enough {item}!")
+            return False
+    return True
+
+
+def enough_cash(recieved_cash, drink_cost):
+    """Return True if inserted amount is sufficient; False if it's not."""
+    if recieved_cash >= drink_cost:
+        change = round(recieved_cash - drink_cost, 2)
+        print(f"Please, don't forget to pick up your change of ${change}.")
+        global stonks
+        stonks += drink_cost
+        return True
+    else:
+        print("Sorry, that's not enough money. Money refunded.")
+        return False
+
+
+def coffee_creation(user_choice, needed_ingredients):
+    """Reduces resources in the machine to make requested coffee"""
+    for item in needed_ingredients:
+        resources[item] -= needed_ingredients[item]
+    print("Here is your coffee! ☕")
+
+
+while Machine:
+    user_choice = input("What would you like? Espresso, Latte, or Cappuccino?: ").lower()
+    if user_choice == "off":
+        Machine = False
+    elif user_choice == "report":
+        print(f"Water: {resources['water']}ml")
+        print(f"Milk: {resources['milk']}ml")
+        print(f"Coffee: {resources['coffee']}g")
+        print(f"Money: ${stonks}")
+    else:
+        chosen_drink = MENU[user_choice]
+        if enough_resources(chosen_drink["ingredients"]):
+            payment = cash()
+            if enough_cash(payment, chosen_drink["cost"]):
+                coffee_creation(user_choice, chosen_drink["ingredients"])
